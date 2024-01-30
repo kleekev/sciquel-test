@@ -5,8 +5,15 @@ const prisma = new PrismaClient()
 
 export async function GET(req: NextRequest){
     // fill here in
+    const { page, pageSize } = await req.json();
+
+    if (page === null || pageSize === null) {
+        return NextResponse.json({ error: "Invalid page or page size" }, { status: 400 });
+    }
+
     try {
         const recentComments = await prisma.comment.findMany({
+            skip: (parseInt(page) - 1) * parseInt(pageSize),
             take: 50,
             orderBy: {
                 createdAt: 'desc',
